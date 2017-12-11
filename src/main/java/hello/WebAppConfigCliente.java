@@ -28,103 +28,56 @@ import org.springframework.integration.mapping.HeaderMapper;
 public class WebAppConfigCliente {
 
     @Bean
-    public EmbeddedServletContainerFactory servletContainer() {
-        TomcatEmbeddedServletContainerFactory factory = new TomcatEmbeddedServletContainerFactory();
-        factory.setPort(9000);
-        factory.setSessionTimeout(10, TimeUnit.MINUTES);
-        return factory;
-    }
+	public EmbeddedServletContainerFactory servletContainer() {
+		TomcatEmbeddedServletContainerFactory factory = new TomcatEmbeddedServletContainerFactory();
+		factory.setPort(9000);
+		factory.setSessionTimeout(10, TimeUnit.MINUTES);
+		return factory;
+	}
 
-    @Bean
-    public ExpressionParser parser() {
-        return new SpelExpressionParser();
-    }
+	@Bean
+	public ExpressionParser parser() {
+		return new SpelExpressionParser();
+	}
 
-    @Bean
-    public HeaderMapper<HttpHeaders> headerMapper() {
-        return new DefaultHttpHeaderMapper();
-    }
+	@Bean
+	public HeaderMapper<HttpHeaders> headerMapper() {
+		return new DefaultHttpHeaderMapper();
+	}
+	
 
-    @Bean
-    public DirectChannel requestChannel() {
-        return MessageChannels.direct().get();
-    }
+        @Bean
+	public MessagingGatewaySupport httpGetGateCliente() {
+		HttpRequestHandlingMessagingGateway handler = new HttpRequestHandlingMessagingGateway();
+		handler.setRequestMapping(createMapping(new HttpMethod[] { HttpMethod.GET }, "/cliente"));
+		handler.setHeaderMapper(headerMapper());
 
-//    @Bean
-//    public HttpRequestHandlingMessagingGateway httpPostGateCliente() {
-//
-//        HttpRequestHandlingMessagingGateway gateway = new HttpRequestHandlingMessagingGateway(true);
-//        RequestMapping requestMapping = new RequestMapping();
-//        requestMapping.setMethods(HttpMethod.POST);
-//        requestMapping.setPathPatterns("/cliente");
-//        gateway.setRequestMapping(requestMapping);
-//        gateway.setRequestChannel(requestChannel());
-//        return gateway;
-//    }
-//    @Bean
-//    public HttpRequestHandlingMessagingGateway inbound() {
-//        HttpRequestHandlingMessagingGateway gateway
-//                = new HttpRequestHandlingMessagingGateway(true);
-//        gateway.setRequestMapping(mapping());
-//        gateway.setRequestPayloadType(String.class);
-//        gateway.setRequestChannelName("httpRequest");
-//        return gateway;
-//    }
-//    @Bean
-//    public RequestMapping mapping() {
-//        RequestMapping requestMapping = new RequestMapping();
-//        requestMapping.setPathPatterns("/cliente");
-//        requestMapping.setMethods(HttpMethod.POST);
-//        return requestMapping;
-//    }
-    @Bean
-    public MessagingGatewaySupport httpGetGateCliente() {
-        HttpRequestHandlingMessagingGateway handler = new HttpRequestHandlingMessagingGateway();
-        handler.setRequestMapping(createMapping(new HttpMethod[]{HttpMethod.GET}, "/cliente"));
-        handler.setHeaderMapper(headerMapper());
+		return handler;
+	}
 
-        return handler;
-    }
+	private RequestMapping createMapping(HttpMethod[] method, String... path) {
+		RequestMapping requestMapping = new RequestMapping();
+		requestMapping.setMethods(method);
+		requestMapping.setProduces("application/json");
+		requestMapping.setPathPatterns(path);
 
-    private RequestMapping createMapping(HttpMethod[] method, String... path) {
-        RequestMapping requestMapping = new RequestMapping();
-        requestMapping.setMethods(method);
-        requestMapping.setProduces("application/json");
-        requestMapping.setPathPatterns(path);
+		return requestMapping;
+	}
 
-        return requestMapping;
-    }
+        
+        @Bean
+	public IntegrationFlow httpGetFlowCliente() {
 
-//    @Bean
-//    public IntegrationFlow httpGetFlowCliente() {
-//
-//        return IntegrationFlows.from(httpGetGateCliente())
-//                .channel("httpGetChannel")
-//                .handle(Http.outboundGateway("https://servicocontrolepedidos.herokuapp.com/cliente")
-//                        .charset("UTF-8")
-//                        .httpMethod(HttpMethod.GET)
-//                        .expectedResponseType(String.class))
-//                .transform(new JsonToObjectTransformer(ArrayList.class))
-//                .get();
-//
-//    }
-//    @Bean
-//    public IntegrationFlow httpPostFlowCliente() {
-//        return IntegrationFlows.from(requestChannel())
-//                .handle(Http.outboundGateway("https://servicocontrolepedidos.herokuapp.com/cliente")
-//                        .charset("UTF-8")
-//                        .expectedResponseType(Boolean.class))
-//                .transform(new JsonToObjectTransformer(Cliente.class))
-//                .get();
-//    }
-    
-    
-    @Bean
-    public IntegrationFlow outbound() {
-        return IntegrationFlows.from("httpOutRequest")
-                .handle(Http.outboundGateway("https://servicocontrolepedidos.herokuapp.com/cliente")
-                        .httpMethod(HttpMethod.POST)
-                        .expectedResponseType(String.class))
-                .get();
-    }
+		
+		return IntegrationFlows.from(httpGetGateCliente())
+				.channel("httpGetChannelCliente")
+				.handle(Http.outboundGateway("https://servicocontrolepedidos.herokuapp.com/cliente")
+	                    .charset("UTF-8")
+	                    .httpMethod(HttpMethod.GET)
+	                    .expectedResponseType(String.class))
+				.transform(new JsonToObjectTransformer(ArrayList.class))
+				.get();
+	                    
+	}
+        
 }

@@ -59,18 +59,6 @@ public class WebAppConfigVenda {
         return handler;
     }
     
-//
-//    @Bean
-//    public HttpRequestHandlingMessagingGateway httpPostGateVenda() {
-//
-//        HttpRequestHandlingMessagingGateway gateway = new HttpRequestHandlingMessagingGateway(true);
-//        RequestMapping requestMapping = new RequestMapping();
-//        requestMapping.setMethods(HttpMethod.POST);
-//        requestMapping.setPathPatterns("/venda");
-//        gateway.setRequestMapping(requestMapping);
-//        gateway.setRequestChannel(requestChannel());
-//        return gateway;
-//    }
 
     private RequestMapping createMapping(HttpMethod[] method, String... path) {
         RequestMapping requestMapping = new RequestMapping();
@@ -85,7 +73,7 @@ public class WebAppConfigVenda {
     public IntegrationFlow httpGetFlowVenda() {
 
         return IntegrationFlows.from(httpGetGateVenda())
-                .channel("httpGetChannel")
+                .channel("httpGetChannelVenda")
                 .handle(Http.outboundGateway("https://servicocontrolepedidos.herokuapp.com/venda")
                         .charset("UTF-8")
                         .httpMethod(HttpMethod.GET)
@@ -94,15 +82,5 @@ public class WebAppConfigVenda {
                 .get();
 
     }
-
-//    @Bean
-//    public IntegrationFlow flow() {
-//        return IntegrationFlows.from(requestChannel())
-//                .handle(Http.outboundGateway("https://servicocontrolepedidos.herokuapp.com/venda")
-//                        .charset("UTF-8")
-//                        .expectedResponseType(String.class))
-//    		.transform(new JsonToObjectTransformer(Venda.class))
-//    		.get();
-//    }
 
 }

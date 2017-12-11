@@ -68,7 +68,7 @@ public class WebAppConfigProduto {
 
 		
 		return IntegrationFlows.from(httpGetGateProduto())
-				.channel("httpGetChannel")
+				.channel("httpGetChannelProduto")
 				.handle(Http.outboundGateway("https://servicocontrolepedidos.herokuapp.com/produto")
 	                    .charset("UTF-8")
 	                    .httpMethod(HttpMethod.GET)

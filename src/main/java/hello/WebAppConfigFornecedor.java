@@ -12,8 +12,10 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
+import org.springframework.integration.dsl.channel.MessageChannels;
 import org.springframework.integration.dsl.http.Http;
 import org.springframework.integration.gateway.MessagingGatewaySupport;
 import org.springframework.integration.http.inbound.HttpRequestHandlingMessagingGateway;
@@ -22,11 +24,10 @@ import org.springframework.integration.http.support.DefaultHttpHeaderMapper;
 import org.springframework.integration.json.JsonToObjectTransformer;
 import org.springframework.integration.mapping.HeaderMapper;
 
-
 @Configuration
-public class WebAppConfigPedido {
+public class WebAppConfigFornecedor {
 
-	@Bean
+    @Bean
 	public EmbeddedServletContainerFactory servletContainer() {
 		TomcatEmbeddedServletContainerFactory factory = new TomcatEmbeddedServletContainerFactory();
 		factory.setPort(9000);
@@ -46,9 +47,9 @@ public class WebAppConfigPedido {
 	
 
         @Bean
-	public MessagingGatewaySupport httpGetGatePedido() {
+	public MessagingGatewaySupport httpGetGateFornecedor() {
 		HttpRequestHandlingMessagingGateway handler = new HttpRequestHandlingMessagingGateway();
-		handler.setRequestMapping(createMapping(new HttpMethod[] { HttpMethod.GET }, "/pedido"));
+		handler.setRequestMapping(createMapping(new HttpMethod[] { HttpMethod.GET }, "/fornecedor"));
 		handler.setHeaderMapper(headerMapper());
 
 		return handler;
@@ -65,12 +66,12 @@ public class WebAppConfigPedido {
 
         
         @Bean
-	public IntegrationFlow httpGetFlowPedido() {
+	public IntegrationFlow httpGetFlowFornecedor() {
 
 		
-		return IntegrationFlows.from(httpGetGatePedido())
-				.channel("httpGetChannelPedido")
-				.handle(Http.outboundGateway("https://servicocontrolepedidos.herokuapp.com/pedido")
+		return IntegrationFlows.from(httpGetGateFornecedor())
+				.channel("httpGetChannelFornecedor")
+				.handle(Http.outboundGateway("https://servicogerentefornecedor.herokuapp.com/fornecedor")
 	                    .charset("UTF-8")
 	                    .httpMethod(HttpMethod.GET)
 	                    .expectedResponseType(String.class))
@@ -79,7 +80,4 @@ public class WebAppConfigPedido {
 	                    
 	}
         
-        
-	
-	 
 }

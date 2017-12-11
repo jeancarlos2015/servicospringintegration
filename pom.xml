@@ -6,7 +6,7 @@
 	<groupId>org.springframework</groupId>
 	<artifactId>spring-integration-example-dsl</artifactId>
 	<version>0.1.0</version>
-
+        <name>servicospringintegration</name>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
